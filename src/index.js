@@ -1,2 +1,7 @@
+import './index.scss';
 
-let a = 1;
+const fn = (...args) => {
+    console.log(args);
+};
+
+fn(1, 2, 3);
