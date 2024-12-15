@@ -1,17 +1,17 @@
-const ESLintPlugin = require('eslint-webpack-plugin');
 const { resolve } = require('path');
+const path = require('path');
 // 会帮你创建一个html 直接引用入口文件
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
     entry: {
-        index: resolve(__dirname, './src/index.js')
+        index: resolve(__dirname, '../src/index.js')
     },
     output: {
-        path: resolve(__dirname, './dist'),
+        path: undefined,
         filename: '[name].js',
-        clean: true
     },
     module: {
         rules: [
@@ -81,10 +81,17 @@ module.exports = {
     plugins: [
         new ESLintPlugin(),
         new HtmlWebpackPlugin({
-            title: 'webpack'
+            title: 'webpack',
+            template: resolve(__dirname, '../public', 'template.html')
         }),
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['dist']
         })
     ],
+    devServer: {
+        host: 'localhost',
+        port: '8080',
+        open: true
+    },
+    mode: 'development'
 };
