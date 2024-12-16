@@ -1,6 +1,7 @@
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+// 该文件无用 这是9版本eslint使用的
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [

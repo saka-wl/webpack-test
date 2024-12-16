@@ -1,5 +1,6 @@
 
 module.exports = {
+    extends: ['eslint:recommended'],
 
     //此项是用来告诉eslint找当前配置文件不能往父级查找
     root: true,
