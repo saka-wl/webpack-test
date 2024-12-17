@@ -91,7 +91,10 @@ module.exports = {
     devServer: {
         host: 'localhost',
         port: '8080',
-        open: true
+        open: true,
+        hot: true, // 开启HMR
     },
-    mode: 'development'
+    mode: 'development',
+    // 开发模式下，行
+    devtool: 'cheap-module-source-map',
 };

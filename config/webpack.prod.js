@@ -3,6 +3,8 @@ const { resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -15,14 +17,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.css$/i,
-                exclude: /\.module\.css$/i,
-                use: [
-                    'style-loader',
-                    'css-loader',
-                ]
-            },
             // 处理ttf与woff2字体资源
             {
                 test: /\.(ttf|woff2?)$/,
@@ -49,13 +43,31 @@ module.exports = {
             {
                 test: /\.((c|sa|sc)ss)$/i,
                 use: [
-                    'style-loader',
+                    // 用了MiniCssExtractPlugin.loader就不要使用style-loader了
+                    MiniCssExtractPlugin.loader,
+                    // 'style-loader',
                     {
                         loader: 'css-loader',
                         options: {
                             // 每一个 CSS 的 `@import` 与 CSS 模块/ICSS 都会运行 `postcss-loader`，不要忘了 `sass-loader` 将不属于 CSS 的 `@import` 编译到一个文件中
                             // 如果您需要在每个 CSS 的 `@import` 上运行 `sass-loader` 和 `postcss-loader`，请将其设置为 `2`。
                             importLoaders: 1,
+                        },
+                    },
+                    // postcss-loader 兼容处理
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    [
+                                        'postcss-preset-env',
+                                        {
+                                            // 其他选项
+                                        },
+                                    ],
+                                ],
+                            },
                         },
                     },
                     // 也可能是 `less-loader`
@@ -78,6 +90,13 @@ module.exports = {
             },
         ]
     },
+    optimization: {
+        minimizer: [
+            // 在 webpack@5 中，你可以使用 `...` 语法来扩展现有的 minimizer（即 `terser-webpack-plugin`），将下一行取消注释
+            // `...`,
+            new CssMinimizerPlugin(),
+        ],
+    },
     plugins: [
         new ESLintPlugin(),
         new HtmlWebpackPlugin({
@@ -86,7 +105,12 @@ module.exports = {
         }),
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['dist']
-        })
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'css/[name].[contenthash:10].css'
+        }),
     ],
-    mode: 'production'
+    mode: 'production',
+    // 生产环境下，详细到行+列
+    // devtool: 'source-map',
 };
