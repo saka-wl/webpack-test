@@ -32,5 +32,5 @@ document.querySelector('.box').appendChild(btnBHtml);
 
 if(module.hot) {
     console.log('支持热模块替换');
-    // module.hot.accept('./a');
+    module.hot.accept('./a');
 }
