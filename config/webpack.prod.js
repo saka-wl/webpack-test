@@ -4,7 +4,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// https://www.webpackjs.com/plugins/terser-webpack-plugin/#root
+const TerserPlugin = require('terser-webpack-plugin');
+// https://www.webpackjs.com/plugins/css-minimizer-webpack-plugin/#minify
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const os = require('os');
+
+const threads = os.cpus().length - 1;  // cpu核数
 
 module.exports = {
     entry: {
@@ -17,88 +23,107 @@ module.exports = {
     },
     module: {
         rules: [
-            // 处理ttf与woff2字体资源
             {
-                test: /\.(ttf|woff2?)$/,
-                type: 'asset',
-                generator: {
-                    filename: 'static/name[hash:10][ext]'
-                }
-            },
-            // 处理图片等资源
-            {
-                test: /\.(png|jpe?g|gif)$/,
-                type: 'asset/resource',
-                parser: {
-                    dataUrlCondition: {
-                        // 小于这么大时使用 base64
-                        maxSize: 10 * 1024
-                    }
-                },
-                generator: {
-                    filename: 'static/[hash:10][ext][query]'
-                }
-            },
-            // 处理css资源
-            {
-                test: /\.((c|sa|sc)ss)$/i,
-                use: [
-                    // 用了MiniCssExtractPlugin.loader就不要使用style-loader了
-                    MiniCssExtractPlugin.loader,
-                    // 'style-loader',
+                oneOf: [
+                    // 处理ttf与woff2字体资源
                     {
-                        loader: 'css-loader',
-                        options: {
-                            // 每一个 CSS 的 `@import` 与 CSS 模块/ICSS 都会运行 `postcss-loader`，不要忘了 `sass-loader` 将不属于 CSS 的 `@import` 编译到一个文件中
-                            // 如果您需要在每个 CSS 的 `@import` 上运行 `sass-loader` 和 `postcss-loader`，请将其设置为 `2`。
-                            importLoaders: 1,
-                        },
+                        test: /\.(ttf|woff2?)$/,
+                        type: 'asset',
+                        generator: {
+                            filename: 'static/name[hash:10][ext]'
+                        }
                     },
-                    // postcss-loader 兼容处理
+                    // 处理图片等资源
                     {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: {
-                                plugins: [
-                                    [
-                                        'postcss-preset-env',
-                                        {
-                                            // 其他选项
-                                        },
-                                    ],
-                                ],
+                        test: /\.(png|jpe?g|gif)$/,
+                        type: 'asset/resource',
+                        parser: {
+                            dataUrlCondition: {
+                                // 小于这么大时使用 base64
+                                maxSize: 10 * 1024
+                            }
+                        },
+                        generator: {
+                            filename: 'static/[hash:10][ext][query]'
+                        }
+                    },
+                    // 处理css资源
+                    {
+                        test: /\.((c|sa|sc)ss)$/i,
+                        use: [
+                            // 用了MiniCssExtractPlugin.loader就不要使用style-loader了
+                            MiniCssExtractPlugin.loader,
+                            // 'style-loader',
+                            {
+                                loader: 'css-loader',
+                                options: {
+                                    // 每一个 CSS 的 `@import` 与 CSS 模块/ICSS 都会运行 `postcss-loader`，不要忘了 `sass-loader` 将不属于 CSS 的 `@import` 编译到一个文件中
+                                    // 如果您需要在每个 CSS 的 `@import` 上运行 `sass-loader` 和 `postcss-loader`，请将其设置为 `2`。
+                                    importLoaders: 1,
+                                },
                             },
+                            // postcss-loader 兼容处理
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    postcssOptions: {
+                                        plugins: [
+                                            [
+                                                'postcss-preset-env',
+                                                {
+                                                    // 其他选项
+                                                },
+                                            ],
+                                        ],
+                                    },
+                                },
+                            },
+                            // 也可能是 `less-loader`
+                            {
+                                loader: 'sass-loader',
+                            },
+                        ],
+                    },
+                    // babel处理
+                    {
+                        test: /\.m?js$/,
+                        exclude: /(node_modules|bower_components|dist)/,
+                        use: {
+                            loader: 'babel-loader',
+                            // 写在了 babel.config.js 中
+                            // options: {
+                            //     presets: ['@babel/preset-env'],
+                            // },
+                            options: {
+                                // 开启cache缓存
+                                cacheDirectory: true,
+                                // 缓存压缩
+                                cacheCompression: false,
+                            }
                         },
                     },
-                    // 也可能是 `less-loader`
-                    {
-                        loader: 'sass-loader',
-                    },
-                ],
-            },
-            // babel处理
-            {
-                test: /\.m?js$/,
-                exclude: /(node_modules|bower_components|dist)/,
-                use: {
-                    loader: 'babel-loader',
-                    // 写在了 babel.config.js 中
-                    // options: {
-                    //     presets: ['@babel/preset-env'],
-                    // },
-                },
-            },
+                ]
+            }
         ]
     },
     optimization: {
+        minimize: true,
         minimizer: [
-            // 在 webpack@5 中，你可以使用 `...` 语法来扩展现有的 minimizer（即 `terser-webpack-plugin`），将下一行取消注释
-            // `...`,
+            // 压缩js
+            new TerserPlugin({
+                // 开启多进程
+                parallel: threads,
+            }),
             new CssMinimizerPlugin(),
         ],
     },
     plugins: [
-        new ESLintPlugin(),
+        new ESLintPlugin({
+            context: resolve(__dirname, '../src'),
+            exclude: "node_modules",
+            cache: true,
+            cacheLocation: resolve(__dirname, '../node_modules/.cache/eslint-cache')
+        }),
         new HtmlWebpackPlugin({
             title: 'webpack',
             template: resolve(__dirname, '../public', 'template.html')
