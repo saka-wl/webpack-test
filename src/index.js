@@ -2,6 +2,7 @@ import './index.scss';
 import A from './a';
 import B from './b';
 import C from './c';
+import img from './img.jpg';
 
 console.log(C.name);
 
@@ -29,6 +30,10 @@ document.querySelector('.box').appendChild(aHtml);
 document.querySelector('.box').appendChild(bHtml);
 document.querySelector('.box').appendChild(btnAHtml);
 document.querySelector('.box').appendChild(btnBHtml);
+
+const imageEl = document.createElement('img');
+imageEl.src = img;
+document.querySelector('.box').appendChild(imageEl);
 
 if(module.hot) {
     console.log('支持热模块替换');

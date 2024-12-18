@@ -8,6 +8,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 // https://www.webpackjs.com/plugins/css-minimizer-webpack-plugin/#minify
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+// https://www.webpackjs.com/plugins/image-minimizer-webpack-plugin/#root
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const os = require('os');
 
 const threads = os.cpus().length - 1;  // cpu核数
@@ -99,6 +101,8 @@ module.exports = {
                                 cacheDirectory: true,
                                 // 缓存压缩
                                 cacheCompression: false,
+                                // 减少代码体积
+                                plugins: ['@babel/plugin-transform-runtime']
                             }
                         },
                     },
@@ -115,6 +119,33 @@ module.exports = {
                 parallel: threads,
             }),
             new CssMinimizerPlugin(),
+            new ImageMinimizerPlugin({
+                minimizer: {
+                    implementation: ImageMinimizerPlugin.imageminGenerate,
+                    options: {
+                        plugins: [
+                            ["gifsicle", { interlaced: true }],
+                            ["jpegtran", { progressive: true }],
+                            ["optipng", { optimizationLevel: 5 }],
+                            [
+                                "svgo",
+                                {
+                                    plugins: [
+                                        "preset-default",
+                                        "prefixIds",
+                                        {
+                                            name: "sortAttrs",
+                                            params: {
+                                                xmlnsOrder: "alphabetical",
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        ],
+                    },
+                },
+            }),
         ],
     },
     plugins: [
@@ -122,7 +153,9 @@ module.exports = {
             context: resolve(__dirname, '../src'),
             exclude: "node_modules",
             cache: true,
-            cacheLocation: resolve(__dirname, '../node_modules/.cache/eslint-cache')
+            // 缓存到哪个文件
+            cacheLocation: resolve(__dirname, '../node_modules/.cache/eslint-cache'),
+            threads
         }),
         new HtmlWebpackPlugin({
             title: 'webpack',
