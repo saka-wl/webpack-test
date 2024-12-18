@@ -16,7 +16,8 @@ const threads = os.cpus().length - 1;  // cpu核数
 
 module.exports = {
     entry: {
-        index: resolve(__dirname, '../src/index.js')
+        main: resolve(__dirname, '../src/main.js'),
+        app: resolve(__dirname, '../src/app.js'),
     },
     output: {
         path: resolve(__dirname, '../dist'),
@@ -147,6 +148,28 @@ module.exports = {
                 },
             }),
         ],
+        splitChunks: {
+            chunks: 'all',  // 对所有模块进行分割
+            minSize: 20000,  // 分割代码的最小大小
+            minRemainingSize: 0,  // 确保提取的文件大小不能为0
+            minChunks: 1,  // 至少被引用的次数，满足条件以后才进行代码分割
+            maxAsyncRequests: 30,  // 按需加载时并行加载的文件最大数量 页面中文件最大的加载数量
+            maxInitialRequests: 30,  // 入口js文件最大并行请求数
+            enforceSizeThreshold: 50000,  // 超出50kb一定会单独打包
+            cacheGroups: {  // 组 哪些模块要打包到一个组
+                defaultVendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    priority: -10,
+                    reuseExistingChunk: true,
+                },
+                default: {
+                    minSize: 1,
+                    minChunks: 2,
+                    priority: -20,
+                    reuseExistingChunk: true,
+                },
+            },
+        },
     },
     plugins: [
         new ESLintPlugin({

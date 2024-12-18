@@ -9,7 +9,8 @@ const os = require('os');
 const threads = os.cpus().length - 1;  // cpu核数
 module.exports = {
     entry: {
-        index: resolve(__dirname, '../src/index.js')
+        main: resolve(__dirname, '../src/main.js'),
+        app: resolve(__dirname, '../src/app.js'),
     },
     output: {
         path: undefined,

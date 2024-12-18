@@ -2,6 +2,9 @@
 module.exports = {
     extends: ['eslint:recommended'],
 
+    // 默认使用babel-eslint解析器 处理import顶层导入问题
+    parser: '@babel/eslint-parser',
+
     //此项是用来告诉eslint找当前配置文件不能往父级查找
     root: true,
 
