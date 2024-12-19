@@ -23,6 +23,9 @@ importers:
       '@eslint/js':
         specifier: ^8.57.1
         version: 8.57.1
+      '@vue/preload-webpack-plugin':
+        specifier: ^2.0.0
+        version: 2.0.0(html-webpack-plugin@5.6.3(webpack@5.96.1))(webpack@5.96.1)
       babel-loader:
         specifier: ^9.2.1
         version: 9.2.1(@babel/core@7.26.0)(webpack@5.96.1)
@@ -1238,6 +1241,13 @@ packages:
 
   '@ungap/structured-clone@1.2.1':
     resolution: {integrity: sha512-fEzPV3hSkSMltkw152tJKNARhOupqbH96MZWyRjNaYZOMIzbrTeQDG+MTc6Mr2pgzFQzFxAfmhGDNP5QK++2ZA==}
+
+  '@vue/preload-webpack-plugin@2.0.0':
+    resolution: {integrity: sha512-RoorRB50WehYbsiWu497q8egZBYlrvOo9KBUG41uth4O023Cbs+7POLm9uw2CAiViBAIhvpw1Y4w4i+MZxOfXw==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      html-webpack-plugin: ^5.0.0 || ^4.5.1
+      webpack: ^5.20.0 || ^4.1.0
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -5672,6 +5682,11 @@ snapshots:
       eslint-visitor-keys: 4.2.0
 
   '@ungap/structured-clone@1.2.1': {}
+
+  '@vue/preload-webpack-plugin@2.0.0(html-webpack-plugin@5.6.3(webpack@5.96.1))(webpack@5.96.1)':
+    dependencies:
+      html-webpack-plugin: 5.6.3(webpack@5.96.1)
+      webpack: 5.96.1(webpack-cli@5.1.4)
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
